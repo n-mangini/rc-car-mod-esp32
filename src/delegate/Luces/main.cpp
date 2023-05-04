@@ -1,31 +1,64 @@
-/* Switch toggles LED on/off */
-
 #include <Arduino.h>
 
-#define BUTTON_PIN 34
-#define LED_PIN LED_BUILTIN
+int LDR_Val = 0;
+int sensor = 13;
+int led = 12;
 
-int led_state = LOW;
-int button_state;
-int last_button_state = HIGH;
+// selectora 3 posiciones
+const int switch_pos1 = 35;
+const int switch_pos2 = 32;
 
 void setup()
 {
     Serial.begin(115200);
-    pinMode(BUTTON_PIN, INPUT_PULLUP);
-    pinMode(LED_PIN, OUTPUT);
+    pinMode(led, OUTPUT);
+    // switch 3 posiciones
+    pinMode(switch_pos1, INPUT_PULLUP);
+    pinMode(switch_pos2, INPUT_PULLUP);
+}
+
+void checkAutomaticLights()
+{
+    if (LDR_Val > 100)
+    {
+        Serial.println(" High intensity: ");
+        Serial.println(LDR_Val);
+        digitalWrite(led, LOW);
+    }
+    else
+    {
+        Serial.println("LOW Intensity ");
+        Serial.println(LDR_Val);
+        digitalWrite(led, HIGH);
+    }
+    delay(1000);
+}
+
+void turnOnLights()
+{
+    Serial.println("MANUAL ON");
+    digitalWrite(led, HIGH);
+}
+
+void turnOffLights()
+{
+    Serial.println("MANUAL OFF");
+    digitalWrite(led, LOW);
+}
+
+void controlLights()
+{
+    //turn on 
+    if (digitalRead(switch_pos1) == LOW)
+        turnOnLights();
+    else if (digitalRead(switch_pos1) == HIGH && digitalRead(switch_pos2) == HIGH)
+        checkAutomaticLights();
+    else if (digitalRead(switch_pos2) == LOW)
+        turnOffLights();
 }
 
 void loop()
 {
-    button_state = digitalRead(BUTTON_PIN); // read new state
-
-    if (button_state == LOW && last_button_state == HIGH)
-    {
-        Serial.println("The button is pressed");
-        led_state = !led_state;
-        digitalWrite(LED_PIN, led_state);
-    }
-
-    last_button_state = button_state; // save last state
+    LDR_Val = analogRead(sensor);
+    controlLights();
 }
