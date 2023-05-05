@@ -1,7 +1,7 @@
 # esp32-rc-car-mod
 #### Projecto: Auto a control remoto con múltiples funciones
 ###### Componentes
-- Motor: Dos motores conectados mediante un punete H para tracción y dirección
+- Motor: Dos motores conectados mediante un puente H para tracción y dirección
 
 - Luces: Luces con switch con opciones de prendido/apagado manual y una automática haciendo uso de un ldr
 
