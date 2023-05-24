@@ -1,338 +1,229 @@
+/*******************************************************************
+    A sketch for controlling a toy car with using a web page
+    hosted on a ESP8266
+
+    Main Hardware:
+    - NodeMCU Development Board cp2102 (Look for the one with the square chip beside the USB port)
+    - NodeMCU Motor Shield (L2932)
+
+    Written by Brian Lough
+    https://www.youtube.com/channel/UCezJOfu7OtqGzd5xrP3q6WA
+ *******************************************************************/
 #include <Arduino.h>
-#ifdef ESP32
 #include <WiFi.h>
-#include <AsyncTCP.h>
-#elif defined(ESP8266)
-#include <ESP8266WiFi.h>
-#include <ESPAsyncTCP.h>
-#endif
-#include <ESPAsyncWebServer.h>
+#include <WiFiClient.h>
+#include <WebServer.h>
+#include <ESPmDNS.h>
 
-#define UP 1
-#define DOWN 2
-#define LEFT 3
-#define RIGHT 4
-#define UP_LEFT 5
-#define UP_RIGHT 6
-#define DOWN_LEFT 7
-#define DOWN_RIGHT 8
-#define TURN_LEFT 9
-#define TURN_RIGHT 10
-#define STOP 0
+// These are the pins used to control the motor shield
 
-#define FRONT_RIGHT_MOTOR 0
-#define BACK_RIGHT_MOTOR 1
-#define FRONT_LEFT_MOTOR 2
-#define BACK_LEFT_MOTOR 3
+#define DRIVE_MOTOR_POWER 25 // Motor B
+#define DRIVE_MOTOR_DIRECTION 33
 
-#define FORWARD 1
-#define BACKWARD -1
+#define STEER_MOTOR_POWER 26 // Motor A
+#define STEER_MOTOR_DIRECTION 32
 
-struct MOTOR_PINS
-{
-  int pinIN1;
-  int pinIN2;    
-};
+// drivePower sets how fast the car goes
+// Can be set between 0 and 1023 (although car problaly wont move if values are too low)
+int drivePower = 1023;
 
-std::vector<MOTOR_PINS> motorPins = 
-{
-  {16, 17},  //FRONT_RIGHT_MOTOR
-  {18, 19},  //BACK_RIGHT_MOTOR
-  {27, 26},  //FRONT_LEFT_MOTOR
-  {25, 33},  //BACK_LEFT_MOTOR   
-};
+// driveDirection sets what direction the car drives
+// If the car is moving backwards when you press the forward button, change this to LOW
+uint8_t driveDirection = HIGH;
 
-const char* ssid     = "UA_ALUMNOS";
-const char* password = "41umn0WLC";
+// steeringPower sets how fast the car turns
+// Can be set between 0 and 1023 (again, car probably won't steer if the value is too low)
+int steeringPower = 1023;
 
-AsyncWebServer server(80);
-AsyncWebSocket ws("/ws");
+// steerDirection sets what direction the car steers
+// If the car is steering right when you press the left button, change this to LOW
+uint8_t steerDirection = HIGH;
 
+// ----------------
+// Set your WiFi SSID and Password here
+// ----------------
+const char *ssid = "TP-Link_AC1900";
+const char *password = "01423363870";
 
-const char* htmlHomePage PROGMEM = R"HTMLHOMEPAGE(
+WebServer server(80);
+
+const char *webpage = R"html(
 <!DOCTYPE html>
 <html>
   <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <style>
-    .arrows {
-      font-size:70px;
-      color:red;
-    }
-    .circularArrows {
-      font-size:80px;
-      color:blue;
-    }
-    td {
-      background-color:black;
-      border-radius:25%;
-      box-shadow: 5px 5px #888888;
-    }
-    td:active {
-      transform: translate(5px,5px);
-      box-shadow: none; 
-    }
-
-    .noselect {
-      -webkit-touch-callout: none; /* iOS Safari */
-        -webkit-user-select: none; /* Safari */
-         -khtml-user-select: none; /* Konqueror HTML */
-           -moz-user-select: none; /* Firefox */
-            -ms-user-select: none; /* Internet Explorer/Edge */
-                user-select: none; /* Non-prefixed version, currently
-                                      supported by Chrome and Opera */
-    }
-    </style>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   </head>
-  <body class="noselect" align="center" style="background-color:white">
-     
-    <h1 style="color: teal;text-align:center;">Hash Include Electronics</h1>
-    <h2 style="color: teal;text-align:center;">Wi-Fi &#128663; Control</h2>
-    
-    <table id="mainTable" style="width:400px;margin:auto;table-layout:fixed" CELLSPACING=10>
-      <tr>
-        <td ontouchstart='onTouchStartAndEnd("5")' ontouchend='onTouchStartAndEnd("0")'><span class="arrows" >&#11017;</span></td>
-        <td ontouchstart='onTouchStartAndEnd("1")' ontouchend='onTouchStartAndEnd("0")'><span class="arrows" >&#8679;</span></td>
-        <td ontouchstart='onTouchStartAndEnd("6")' ontouchend='onTouchStartAndEnd("0")'><span class="arrows" >&#11016;</span></td>
-      </tr>
-      
-      <tr>
-        <td ontouchstart='onTouchStartAndEnd("3")' ontouchend='onTouchStartAndEnd("0")'><span class="arrows" >&#8678;</span></td>
-        <td></td>    
-        <td ontouchstart='onTouchStartAndEnd("4")' ontouchend='onTouchStartAndEnd("0")'><span class="arrows" >&#8680;</span></td>
-      </tr>
-      
-      <tr>
-        <td ontouchstart='onTouchStartAndEnd("7")' ontouchend='onTouchStartAndEnd("0")'><span class="arrows" >&#11019;</span></td>
-        <td ontouchstart='onTouchStartAndEnd("2")' ontouchend='onTouchStartAndEnd("0")'><span class="arrows" >&#8681;</span></td>
-        <td ontouchstart='onTouchStartAndEnd("8")' ontouchend='onTouchStartAndEnd("0")'><span class="arrows" >&#11018;</span></td>
-      </tr>
-    
-      <tr>
-        <td ontouchstart='onTouchStartAndEnd("9")' ontouchend='onTouchStartAndEnd("0")'><span class="circularArrows" >&#8634;</span></td>
-        <td style="background-color:white;box-shadow:none"></td>
-        <td ontouchstart='onTouchStartAndEnd("10")' ontouchend='onTouchStartAndEnd("0")'><span class="circularArrows" >&#8635;</span></td>
-      </tr>
-    </table>
+  <body>
+    <div class="container-fluid">
+      <div class="col-xs-12"  style="height: 100vh">
+        <div class="row" style="height: 33.33%; padding-top: 1em; padding-bottom:1em">
+          <div class="col-xs-8" ></div>
+          <div class="col-xs-4" style="text-align: center; height: 100%">
+            <button id="drive" type="button" class="btn btn-default" style="height: 100%; width: 100%" onmousedown='makeAjaxCall("forward")' onmouseup='makeAjaxCall("driveStop")' ontouchstart='makeAjaxCall("forward")' ontouchend='makeAjaxCall("driveStop")'>Drive</button>
+          </div>
+        </div>
+        <div class="row" style="height: 33.33%; padding-bottom:1em">
+          <div class="col-xs-4" style="height: 100%; text-align: center">
+            <button id="left" type="button" class="btn btn-default" style="height: 100%; width: 100%" onmousedown='makeAjaxCall("left")' onmouseup='makeAjaxCall("steerStop")' ontouchstart='makeAjaxCall("left")' ontouchend='makeAjaxCall("steerStop")'>Left</button>
+          </div>
+          <div class="col-xs-4" style="height: 100%; text-align: center">
+            <button id="right" type="button" class="btn btn-default" style="height: 100%; width: 100%" onmousedown='makeAjaxCall("right")' onmouseup='makeAjaxCall("steerStop")' ontouchstart='makeAjaxCall("right")' ontouchend='makeAjaxCall("steerStop")'>Right</button>
+          </div>
+          <div class="col-xs-4" ></div>
+        </div>
+        <div class="row" style="height: 33.33%; padding-bottom:1em">
+          <div class="col-xs-8" ></div>
+          <div class="col-xs-4" style="height: 100%; text-align: center">
+            <button id="back" type="button" class="btn btn-default" style="height: 100%; width: 100%" onmousedown='makeAjaxCall("back")' onmouseup='makeAjaxCall("driveStop")' ontouchstart='makeAjaxCall("back")' ontouchend='makeAjaxCall("driveStop")'>Back</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script> function makeAjaxCall(url){$.ajax({"url": url})}</script>
+    <!--<script>
+       document.addEventListener('keydown', function(event) {
+          if(event.keyCode == 37) {
+              //Left Arrow
+              makeAjaxCall("left");            
+          }
+          else if(event.keyCode == 39) {
+              //Right Arrow
+              makeAjaxCall("right");   
+          } else if(event.keyCode == 38) {
+              //Up Arrow
+              makeAjaxCall("forward");   
+          } else if(event.keyCode == 40) {
+              //Down Arrow
+              makeAjaxCall("back");   
+          }
+      });
 
-    <script>
-      var webSocketUrl = "ws:\/\/" + window.location.hostname + "/ws";
-      var websocket;
-      
-      function initWebSocket() 
-      {
-        websocket = new WebSocket(webSocketUrl);
-        websocket.onopen    = function(event){};
-        websocket.onclose   = function(event){setTimeout(initWebSocket, 2000);};
-        websocket.onmessage = function(event){};
-      }
-
-      function onTouchStartAndEnd(value) 
-      {
-        websocket.send(value);
-      }
-          
-      window.onload = initWebSocket;
-      document.getElementById("mainTable").addEventListener("touchend", function(event){
-        event.preventDefault()
-      });      
-    </script>
-    
+      document.addEventListener('keyup', function(event) {
+          if(event.keyCode == 37 ||event.keyCode == 39 ) {
+              //Left or Right Arrow
+              makeAjaxCall("steerStop");            
+          }
+          else if(event.keyCode == 38 ||event.keyCode == 40 ) {
+              //Up or Down Arrow
+              makeAjaxCall("driveStop");            
+          }
+      });
+    </script>-->
   </body>
-</html> 
+</html>
 
-)HTMLHOMEPAGE";
+)html";
 
-
-void rotateMotor(int motorNumber, int motorDirection)
+void handleRoot()
 {
-  if (motorDirection == FORWARD)
-  {
-    digitalWrite(motorPins[motorNumber].pinIN1, HIGH);
-    digitalWrite(motorPins[motorNumber].pinIN2, LOW);    
-  }
-  else if (motorDirection == BACKWARD)
-  {
-    digitalWrite(motorPins[motorNumber].pinIN1, LOW);
-    digitalWrite(motorPins[motorNumber].pinIN2, HIGH);     
-  }
-  else
-  {
-    digitalWrite(motorPins[motorNumber].pinIN1, LOW);
-    digitalWrite(motorPins[motorNumber].pinIN2, LOW);       
-  }
+
+  server.send(200, "text/html", webpage);
 }
 
-void processCarMovement(String inputValue)
+void handleNotFound()
 {
-  Serial.printf("Got value as %s %d\n", inputValue.c_str(), inputValue.toInt());  
-  switch(inputValue.toInt())
+  String message = "File Not Found\n\n";
+  message += "URI: ";
+  message += server.uri();
+  message += "\nMethod: ";
+  message += (server.method() == HTTP_GET) ? "GET" : "POST";
+  message += "\nArguments: ";
+  message += server.args();
+  message += "\n";
+  for (uint8_t i = 0; i < server.args(); i++)
   {
-
-    case UP:
-      rotateMotor(FRONT_RIGHT_MOTOR, FORWARD);
-      rotateMotor(BACK_RIGHT_MOTOR, FORWARD);
-      rotateMotor(FRONT_LEFT_MOTOR, FORWARD);
-      rotateMotor(BACK_LEFT_MOTOR, FORWARD);                  
-      break;
-  
-    case DOWN:
-      rotateMotor(FRONT_RIGHT_MOTOR, BACKWARD);
-      rotateMotor(BACK_RIGHT_MOTOR, BACKWARD);
-      rotateMotor(FRONT_LEFT_MOTOR, BACKWARD);
-      rotateMotor(BACK_LEFT_MOTOR, BACKWARD);   
-      break;
-  
-    case LEFT:
-      rotateMotor(FRONT_RIGHT_MOTOR, FORWARD);
-      rotateMotor(BACK_RIGHT_MOTOR, BACKWARD);
-      rotateMotor(FRONT_LEFT_MOTOR, BACKWARD);
-      rotateMotor(BACK_LEFT_MOTOR, FORWARD);   
-      break;
-  
-    case RIGHT:
-      rotateMotor(FRONT_RIGHT_MOTOR, BACKWARD);
-      rotateMotor(BACK_RIGHT_MOTOR, FORWARD);
-      rotateMotor(FRONT_LEFT_MOTOR, FORWARD);
-      rotateMotor(BACK_LEFT_MOTOR, BACKWARD);  
-      break;
-  
-    case UP_LEFT:
-      rotateMotor(FRONT_RIGHT_MOTOR, FORWARD);
-      rotateMotor(BACK_RIGHT_MOTOR, STOP);
-      rotateMotor(FRONT_LEFT_MOTOR, STOP);
-      rotateMotor(BACK_LEFT_MOTOR, FORWARD);  
-      break;
-  
-    case UP_RIGHT:
-      rotateMotor(FRONT_RIGHT_MOTOR, STOP);
-      rotateMotor(BACK_RIGHT_MOTOR, FORWARD);
-      rotateMotor(FRONT_LEFT_MOTOR, FORWARD);
-      rotateMotor(BACK_LEFT_MOTOR, STOP);  
-      break;
-  
-    case DOWN_LEFT:
-      rotateMotor(FRONT_RIGHT_MOTOR, STOP);
-      rotateMotor(BACK_RIGHT_MOTOR, BACKWARD);
-      rotateMotor(FRONT_LEFT_MOTOR, BACKWARD);
-      rotateMotor(BACK_LEFT_MOTOR, STOP);   
-      break;
-  
-    case DOWN_RIGHT:
-      rotateMotor(FRONT_RIGHT_MOTOR, BACKWARD);
-      rotateMotor(BACK_RIGHT_MOTOR, STOP);
-      rotateMotor(FRONT_LEFT_MOTOR, STOP);
-      rotateMotor(BACK_LEFT_MOTOR, BACKWARD);   
-      break;
-  
-    case TURN_LEFT:
-      rotateMotor(FRONT_RIGHT_MOTOR, FORWARD);
-      rotateMotor(BACK_RIGHT_MOTOR, FORWARD);
-      rotateMotor(FRONT_LEFT_MOTOR, BACKWARD);
-      rotateMotor(BACK_LEFT_MOTOR, BACKWARD);  
-      break;
-  
-    case TURN_RIGHT:
-      rotateMotor(FRONT_RIGHT_MOTOR, BACKWARD);
-      rotateMotor(BACK_RIGHT_MOTOR, BACKWARD);
-      rotateMotor(FRONT_LEFT_MOTOR, FORWARD);
-      rotateMotor(BACK_LEFT_MOTOR, FORWARD);   
-      break;
-  
-    case STOP:
-      rotateMotor(FRONT_RIGHT_MOTOR, STOP);
-      rotateMotor(BACK_RIGHT_MOTOR, STOP);
-      rotateMotor(FRONT_LEFT_MOTOR, STOP);
-      rotateMotor(BACK_LEFT_MOTOR, STOP);    
-      break;
-  
-    default:
-      rotateMotor(FRONT_RIGHT_MOTOR, STOP);
-      rotateMotor(BACK_RIGHT_MOTOR, STOP);
-      rotateMotor(FRONT_LEFT_MOTOR, STOP);
-      rotateMotor(BACK_LEFT_MOTOR, STOP);    
-      break;
+    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
   }
+  server.send(404, "text/plain", message);
 }
 
-void handleRoot(AsyncWebServerRequest *request) 
+void setup(void)
 {
-  request->send_P(200, "text/html", htmlHomePage);
-}
 
-void handleNotFound(AsyncWebServerRequest *request) 
-{
-    request->send(404, "text/plain", "File Not Found");
-}
+  pinMode(DRIVE_MOTOR_POWER, OUTPUT); // Initialize the LED_BUILTIN pin as an output
+  pinMode(DRIVE_MOTOR_DIRECTION, OUTPUT);
+  pinMode(STEER_MOTOR_POWER, OUTPUT);
+  pinMode(STEER_MOTOR_DIRECTION, OUTPUT);
 
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+  delay(100);
 
-void onWebSocketEvent(AsyncWebSocket *server, 
-                      AsyncWebSocketClient *client, 
-                      AwsEventType type,
-                      void *arg, 
-                      uint8_t *data, 
-                      size_t len) 
-{                      
-  switch (type) 
-  {
-    case WS_EVT_CONNECT:
-      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-      //client->text(getRelayPinsStatusJson(ALL_RELAY_PINS_INDEX));
-      break;
-    case WS_EVT_DISCONNECT:
-      Serial.printf("WebSocket client #%u disconnected\n", client->id());
-      processCarMovement("0");
-      break;
-    case WS_EVT_DATA:
-      AwsFrameInfo *info;
-      info = (AwsFrameInfo*)arg;
-      if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) 
-      {
-        std::string myData = "";
-        myData.assign((char *)data, len);
-        processCarMovement(myData.c_str());       
-      }
-      break;
-    case WS_EVT_PONG:
-    case WS_EVT_ERROR:
-      break;
-    default:
-      break;  
-  }
-}
-
-void setUpPinModes()
-{
-  for (int i = 0; i < motorPins.size(); i++)
-  {
-    pinMode(motorPins[i].pinIN1, OUTPUT);
-    pinMode(motorPins[i].pinIN2, OUTPUT);  
-    rotateMotor(i, STOP);  
-  }
-}
-
-
-void setup(void) 
-{
-  setUpPinModes();
   Serial.begin(115200);
+  WiFi.begin(ssid, password);
+  Serial.println("");
 
-  WiFi.softAP(ssid, password);
-  IPAddress IP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(IP);
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
 
-  server.on("/", HTTP_GET, handleRoot);
+  if (MDNS.begin("WifiCar"))
+  {
+    Serial.println("MDNS Responder Started");
+  }
+
+  server.on("/", handleRoot);
+
+  server.on("/forward", []()
+            {
+    Serial.println("forward");
+    analogWrite(DRIVE_MOTOR_POWER, drivePower);
+    digitalWrite(DRIVE_MOTOR_DIRECTION, driveDirection);
+    server.send(200, "text/plain", "forward"); });
+
+  server.on("/driveStop", []()
+            {
+    Serial.println("driveStop");
+    analogWrite(DRIVE_MOTOR_POWER, 0);
+    server.send(200, "text/plain", "driveStop"); });
+
+  server.on("/back", []()
+            {
+    Serial.println("back");
+    analogWrite(DRIVE_MOTOR_POWER, drivePower);
+    digitalWrite(DRIVE_MOTOR_DIRECTION, !driveDirection);
+    server.send(200, "text/plain", "back"); });
+
+  server.on("/right", []()
+            {
+    Serial.println("right");
+    analogWrite(STEER_MOTOR_POWER, steeringPower);
+    digitalWrite(STEER_MOTOR_DIRECTION, steerDirection);
+    server.send(200, "text/plain", "right"); });
+
+  server.on("/left", []()
+            {
+    Serial.println("left");
+    analogWrite(STEER_MOTOR_POWER, steeringPower);
+    digitalWrite(STEER_MOTOR_DIRECTION, !steerDirection);
+    server.send(200, "text/plain", "left"); });
+
+  server.on("/steerStop", []()
+            {
+    Serial.println("steerStop");
+    analogWrite(STEER_MOTOR_POWER, 0);
+    server.send(200, "text/plain", "steerStop"); });
+
   server.onNotFound(handleNotFound);
-  
-  ws.onEvent(onWebSocketEvent);
-  server.addHandler(&ws);
-  
+
   server.begin();
-  Serial.println("HTTP server started");
+  Serial.println("HTTP Server Started");
 }
 
-void loop() 
+void loop(void)
 {
-  ws.cleanupClients(); 
+  server.handleClient();
 }
