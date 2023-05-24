@@ -5,8 +5,8 @@ int ldrPin = 13;
 int ligthsPin = 12;
 
 // selectora 3 posiciones
-const int switchPos1 = 33;
-const int switchPos2 = 32;
+const int switchPos1 = 14;
+const int switchPos2 = 27;
 
 void setup()
 {
@@ -20,7 +20,7 @@ void setup()
 void checkAutomaticLights()
 {
     ldrStatus = analogRead(ldrPin);
-    if (ldrStatus > 100)
+    if (ldrStatus > 200)
     {
         Serial.println(" HIGH intensity: ");
         Serial.println(ldrStatus);
