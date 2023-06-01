@@ -31,11 +31,57 @@ const char *webpage = R"html(
             <button id="back" type="button" class="btn btn-default" style="height: 100%; width: 100%" onmousedown='makeAjaxCall("back")' onmouseup='makeAjaxCall("driveStop")' ontouchstart='makeAjaxCall("back")' ontouchend='makeAjaxCall("driveStop")'>Back</button>
           </div>
         </div>
+
+        <div class="row" style="height: 33.33%; padding-bottom:1em">
+            <div class="col-xs-8" ></div>
+            <div class="col-xs-4" style="height: 100%; text-align: center">
+              <button id="LED_ON" type="button" class="btn btn-default" style="height: 100%; width: 100%" onmousedown='makeAjaxCall("manualLedOn")' ontouchstart='makeAjaxCall("manualLedOn")'>LED</button>
+            </div>
+          </div>
+
+          <div class="row" style="height: 33.33%; padding-bottom:1em">
+            <div class="col-xs-8" ></div>
+            <div class="col-xs-4" style="height: 100%; text-align: center">
+              <button id="LED_OFF" type="button" class="btn btn-default" style="height: 100%; width: 100%" onmousedown='makeAjaxCall("manualLedOff")' ontouchstart='makeAjaxCall("manualLedOff")'>LED</button>
+            </div>
+          </div>
+        
       </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script> function makeAjaxCall(url){$.ajax({"url": url})}</script>
+    <script>
+       document.addEventListener('keydown', function(event) {
+          if(event.keyCode == 37) {
+              //Left Arrow
+              makeAjaxCall("left");            
+          }
+          else if(event.keyCode == 39) {
+              //Right Arrow
+              makeAjaxCall("right");   
+          } else if(event.keyCode == 38) {
+              //Up Arrow
+              makeAjaxCall("forward");   
+          } else if(event.keyCode == 40) {
+              //Down Arrow
+              makeAjaxCall("back");   
+          }
+      });
+
+      document.addEventListener('keyup', function(event) {
+          if(event.keyCode == 37 ||event.keyCode == 39 ) {
+              //Left or Right Arrow
+              makeAjaxCall("steerStop");            
+          }
+          else if(event.keyCode == 38 ||event.keyCode == 40 ) {
+              //Up or Down Arrow
+              makeAjaxCall("driveStop");            
+          }
+      });
+    </script>
+  </body>
+</html>
     <!--<script>
        document.addEventListener('keydown', function(event) {
           if(event.keyCode == 37) {
