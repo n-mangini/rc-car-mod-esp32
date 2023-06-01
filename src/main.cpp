@@ -10,6 +10,7 @@ const int A1A = 26;
 const int A1B = 25;
 /* const int B1A = 14;
 const int B1B = 27; */
+const int LED = 12;
 
 WebServer server(80);
 
@@ -68,6 +69,7 @@ void setup(void)
   pinMode(A1B, OUTPUT);
 /*   pinMode(B1A, OUTPUT);
   pinMode(B1B, OUTPUT); */
+  pinMode(LED, INPUT);
   handleWifi();
 
   server.on("/", handleRoot);
