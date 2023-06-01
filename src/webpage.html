@@ -1,116 +1,180 @@
 const char *webpage = R"html(
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  </head>
-  <body>
-    <div class="container-fluid">
-      <div class="col-xs-12"  style="height: 100vh">
-        <div class="row" style="height: 33.33%; padding-top: 1em; padding-bottom:1em">
-          <div class="col-xs-8" ></div>
-          <div class="col-xs-4" style="text-align: center; height: 100%">
-            <button id="drive" type="button" class="btn btn-default" style="height: 100%; width: 100%" onmousedown='makeAjaxCall("forward")' onmouseup='makeAjaxCall("driveStop")' ontouchstart='makeAjaxCall("forward")' ontouchend='makeAjaxCall("driveStop")'>Drive</button>
-          </div>
-        </div>
-        <div class="row" style="height: 33.33%; padding-bottom:1em">
-          <div class="col-xs-4" style="height: 100%; text-align: center">
-            <button id="left" type="button" class="btn btn-default" style="height: 100%; width: 100%" onmousedown='makeAjaxCall("left")' onmouseup='makeAjaxCall("steerStop")' ontouchstart='makeAjaxCall("left")' ontouchend='makeAjaxCall("steerStop")'>Left</button>
-          </div>
-          <div class="col-xs-4" style="height: 100%; text-align: center">
-            <button id="right" type="button" class="btn btn-default" style="height: 100%; width: 100%" onmousedown='makeAjaxCall("right")' onmouseup='makeAjaxCall("steerStop")' ontouchstart='makeAjaxCall("right")' ontouchend='makeAjaxCall("steerStop")'>Right</button>
-          </div>
-          <div class="col-xs-4" ></div>
-        </div>
-        <div class="row" style="height: 33.33%; padding-bottom:1em">
-          <div class="col-xs-8" ></div>
-          <div class="col-xs-4" style="height: 100%; text-align: center">
-            <button id="back" type="button" class="btn btn-default" style="height: 100%; width: 100%" onmousedown='makeAjaxCall("back")' onmouseup='makeAjaxCall("driveStop")' ontouchstart='makeAjaxCall("back")' ontouchend='makeAjaxCall("driveStop")'>Back</button>
-          </div>
-        </div>
+<head>
+     <meta charset="utf-8" />
+     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+     <style>
+          .btn-animate {
+               transition: transform 0.2s ease;
+          }
 
-        <div class="row" style="height: 33.33%; padding-bottom:1em">
-            <div class="col-xs-8" ></div>
-            <div class="col-xs-4" style="height: 100%; text-align: center">
-              <button id="LED_ON" type="button" class="btn btn-default" style="height: 100%; width: 100%" onmousedown='makeAjaxCall("manualLedOn")' ontouchstart='makeAjaxCall("manualLedOn")'>LED</button>
-            </div>
+          .btn-animate:active {
+               transform: scale(0.9);
+          }
+     </style>
+</head>
+
+<body style="
+      height: 100vh;
+      background-color: grey;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    " ;="">
+     <div class="cont" style="
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+      ">
+          <div class="align-items-start justify-content-center" style="grid-column: 2 ;grid-row:2; text-align: center">
+               <div class="">
+                    <button id="drive" type="button" class="btn btn-info btn-lg btn-animate"
+                         style="border-radius: 30px; font-size: 1.5rem; padding: 20px 30px"
+                         onmousedown='makeAjaxCall("forward")' onmouseup='makeAjaxCall("driveStop")'
+                         ontouchstart='makeAjaxCall("forward")' ontouchend='makeAjaxCall("driveStop")'>
+                         Drive
+                    </button>
+               </div>
           </div>
-
-          <div class="row" style="height: 33.33%; padding-bottom:1em">
-            <div class="col-xs-8" ></div>
-            <div class="col-xs-4" style="height: 100%; text-align: center">
-              <button id="LED_OFF" type="button" class="btn btn-default" style="height: 100%; width: 100%" onmousedown='makeAjaxCall("manualLedOff")' ontouchstart='makeAjaxCall("manualLedOff")'>LED</button>
-            </div>
+          <div class="" style="grid-row: 1;grid-column: 1; text-align: center ;margin-bottom:10px;">
+              <button class="btn btn-warning btn-lg btn-animate"
+              style="border-radius: 30px; font-size: 1.5rem; padding: 20px 30px">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-lightbulb" viewBox="0 0 16 16">
+               <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1z"/>
+             </svg>
+              </button>
           </div>
-        
-      </div>
-    </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script> function makeAjaxCall(url){$.ajax({"url": url})}</script>
-    <script>
-       document.addEventListener('keydown', function(event) {
-          if(event.keyCode == 37) {
-              //Left Arrow
-              makeAjaxCall("left");            
+          <div class="" style="grid-row: 1;grid-column: 2; text-align: center">
+               <button class="btn btn-warning btn-lg btn-animate"
+               style="border-radius: 30px; font-size: 1.5rem; padding: 20px 30px">
+               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-lightbulb-fill" viewBox="0 0 16 16">
+                    <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13h-5a.5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm3 8.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1-.5-.5z"/>
+                  </svg>                  
+               </button>
+           </div>
+          <div class="" style="grid-row: 1;grid-column: 3; text-align: center">
+               <button class="btn btn-warning btn-lg btn-animate"
+               style="border-radius: 40px; font-size: 1.5rem; padding: 20px 30px ;">
+               Auto               
+               </button>
+          </div>
+          <div class="" style="grid-row: 3;grid-column: 1; text-align: end">
+               <button id="left" type="button" class="btn btn-info btn-lg btn-animate"
+                    style="border-radius: 45px; font-size: 1.5rem; padding: 20px 30px"
+                    onmousedown='makeAjaxCall("left")' onmouseup='makeAjaxCall("steerStop")'
+                    ontouchstart='makeAjaxCall("left")' ontouchend='makeAjaxCall("steerStop")'>
+                    Left
+               </button>
+          </div>
+          <div class="" style="grid-row: 3; grid-column: 3; text-align: start">
+               <button id="right" type="button" class="btn btn-info btn-lg btn-animate"
+                    style="border-radius: 45px; font-size: 1.5rem; padding: 20px 30px"
+                    onmousedown='makeAjaxCall("right")' onmouseup='makeAjaxCall("steerStop")'
+                    ontouchstart='makeAjaxCall("right")' ontouchend='makeAjaxCall("steerStop")'>
+                    Right
+               </button>
+          </div>
+          <div class="align-items-end justify-content-center" style="grid-column: 2; grid-row: 4; text-align: center">
+               <div class="">
+                    <button id="back" type="button" class="btn btn-info btn-lg btn-animate"
+                         style="border-radius: 45px; font-size: 1.5rem; padding: 20px 30px"
+                         onmousedown='makeAjaxCall("back")' onmouseup='makeAjaxCall("driveStop")'
+                         ontouchstart='makeAjaxCall("back")' ontouchend='makeAjaxCall("driveStop")'>
+                         Back
+                    </button>
+               </div>
+          </div>
+     </div>
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+     <script>
+          function makeAjaxCall(url) {
+               $.ajax({ url: url });
           }
-          else if(event.keyCode == 39) {
-              //Right Arrow
-              makeAjaxCall("right");   
-          } else if(event.keyCode == 38) {
-              //Up Arrow
-              makeAjaxCall("forward");   
-          } else if(event.keyCode == 40) {
-              //Down Arrow
-              makeAjaxCall("back");   
-          }
-      });
+     </script>
+     <script>
+          document.addEventListener("keydown", function (event) {
+               if (event.keyCode == 37) {
+                    //Left Arrow
+                    makeAjaxCall("left");
+               } else if (event.keyCode == 39) {
+                    //Right Arrow
+                    makeAjaxCall("right");
+               } else if (event.keyCode == 38) {
+                    //Up Arrow
+                    makeAjaxCall("forward");
+               } else if (event.keyCode == 40) {
+                    //Down Arrow
+                    makeAjaxCall("back");
+               }
+          });
 
-      document.addEventListener('keyup', function(event) {
-          if(event.keyCode == 37 ||event.keyCode == 39 ) {
-              //Left or Right Arrow
-              makeAjaxCall("steerStop");            
+          document.addEventListener("keyup", function (event) {
+               if (event.keyCode == 37 || event.keyCode == 39) {
+                    //Left or Right Arrow
+                    makeAjaxCall("steerStop");
+               } else if (event.keyCode == 38 || event.keyCode == 40) {
+                    //Up or Down Arrow
+                    makeAjaxCall("driveStop");
+               }
+          });
+     </script>
+     <!-- Code injected by live-server -->
+     <script>
+          // <![CDATA[  <-- For SVG support
+          if ("WebSocket" in window) {
+               (function () {
+                    function refreshCSS() {
+                         var sheets = [].slice.call(document.getElementsByTagName("link"));
+                         var head = document.getElementsByTagName("head")[0];
+                         for (var i = 0; i < sheets.length; ++i) {
+                              var elem = sheets[i];
+                              var parent = elem.parentElement || head;
+                              parent.removeChild(elem);
+                              var rel = elem.rel;
+                              if (
+                                   (elem.href && typeof rel != "string") ||
+                                   rel.length == 0 ||
+                                   rel.toLowerCase() == "stylesheet"
+                              ) {
+                                   var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, "");
+                                   elem.href =
+                                        url +
+                                        (url.indexOf("?") >= 0 ? "&" : "?") +
+                                        "_cacheOverride=" +
+                                        new Date().valueOf();
+                              }
+                              parent.appendChild(elem);
+                         }
+                    }
+                    var protocol =
+                         window.location.protocol === "http:" ? "ws://" : "wss://";
+                    var address =
+                         protocol + window.location.host + window.location.pathname + "/ws";
+                    var socket = new WebSocket(address);
+                    socket.onmessage = function (msg) {
+                         if (msg.data == "reload") window.location.reload();
+                         else if (msg.data == "refreshcss") refreshCSS();
+                    };
+                    if (
+                         sessionStorage &&
+                         !sessionStorage.getItem("IsThisFirstTime_Log_From_LiveServer")
+                    ) {
+                         console.log("Live reload enabled.");
+                         sessionStorage.setItem("IsThisFirstTime_Log_From_LiveServer", true);
+                    }
+               })();
+          } else {
+               console.error(
+                    "Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading."
+               );
           }
-          else if(event.keyCode == 38 ||event.keyCode == 40 ) {
-              //Up or Down Arrow
-              makeAjaxCall("driveStop");            
-          }
-      });
-    </script>
-  </body>
-</html>
-    <!--<script>
-       document.addEventListener('keydown', function(event) {
-          if(event.keyCode == 37) {
-              //Left Arrow
-              makeAjaxCall("left");            
-          }
-          else if(event.keyCode == 39) {
-              //Right Arrow
-              makeAjaxCall("right");   
-          } else if(event.keyCode == 38) {
-              //Up Arrow
-              makeAjaxCall("forward");   
-          } else if(event.keyCode == 40) {
-              //Down Arrow
-              makeAjaxCall("back");   
-          }
-      });
-
-      document.addEventListener('keyup', function(event) {
-          if(event.keyCode == 37 ||event.keyCode == 39 ) {
-              //Left or Right Arrow
-              makeAjaxCall("steerStop");            
-          }
-          else if(event.keyCode == 38 ||event.keyCode == 40 ) {
-              //Up or Down Arrow
-              makeAjaxCall("driveStop");            
-          }
-      });
-    </script>-->
-  </body>
+      // ]]>
+     </script>
+</body>
 </html>
 )html";
