@@ -8,8 +8,8 @@
 
 const int A1A = 26;
 const int A1B = 25;
-/* const int B1A = 14;
-const int B1B = 27; */
+const int B1A = 14;
+const int B1B = 27;
 const int REVERSE_LED = 12;
 const int LUCES_BAJAS = 13;
 
@@ -68,8 +68,8 @@ void setup(void)
   Serial.begin(SERIAL_BAUD);
   pinMode(A1A, OUTPUT);
   pinMode(A1B, OUTPUT);
-  /*   pinMode(B1A, OUTPUT);
-    pinMode(B1B, OUTPUT); */
+    pinMode(B1A, OUTPUT);
+    pinMode(B1B, OUTPUT); 
   pinMode(REVERSE_LED, OUTPUT);
   pinMode(LUCES_BAJAS, OUTPUT);
   handleWifi();
@@ -101,35 +101,35 @@ void setup(void)
   server.on("/right", []()
             {
     Serial.println("right");
-/*     digitalWrite(B1A, HIGH);
-    digitalWrite(B1B, LOW); */
+    digitalWrite(B1A, HIGH);
+    digitalWrite(B1B, LOW); 
     server.send(200, "text/plain", "right"); });
 
   server.on("/left", []()
             {
     Serial.println("left");
-/*     digitalWrite(B1A, LOW);
-    digitalWrite(B1B, HIGH); */
+    digitalWrite(B1A, LOW);
+    digitalWrite(B1B, HIGH); 
     server.send(200, "text/plain", "left"); });
 
   server.on("/steerStop", []()
             {
     Serial.println("steerStop");
-/*     digitalWrite(B1A, LOW);
-    digitalWrite(B1B, LOW); */
+    digitalWrite(B1A, LOW);
+    digitalWrite(B1B, LOW); 
     server.send(200, "text/plain", "steerStop"); });
 
-  server.on("/manualLedOn", []()
+  server.on("/LightsOn", []()
             {
-    Serial.println("LED MANUAL ON");
+    Serial.println("LIGHTS MANUAL ON");
     digitalWrite(LUCES_BAJAS, HIGH);
-    server.send(200, "text/plain", "back"); });
+    server.send(200, "text/plain", "Luces encendidas"); });
 
-      server.on("/manualLedOff", []()
+      server.on("/LightsOff", []()
             {
-    Serial.println("LED MANUAL OFF");
+    Serial.println("LIGHTS MANUAL OFF");
     digitalWrite(LUCES_BAJAS, LOW);
-    server.send(200, "text/plain", "back"); });
+    server.send(200, "text/plain", "Luces apagadas"); });
 
   server.onNotFound(handleNotFound);
   server.begin();
