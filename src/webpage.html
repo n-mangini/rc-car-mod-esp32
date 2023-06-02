@@ -55,8 +55,6 @@ const char *webpage = R"html(
             type="button"
             class="btn btn-info btn-lg btn-animate"
             style="border-radius: 45px; font-size: 1.5rem; padding: 20px 30px"
-            onmousedown='makeAjaxCall("forward")'
-            onmouseup='makeAjaxCall("driveStop")'
             ontouchstart='makeAjaxCall("forward")'
             ontouchend='makeAjaxCall("driveStop")'
           >
@@ -76,8 +74,6 @@ const char *webpage = R"html(
             type="button"
             class="btn btn-info btn-lg btn-animate"
             style="border-radius: 45px; font-size: 1.5rem; padding: 20px 30px"
-            onmousedown='makeAjaxCall("back")'
-            onmouseup='makeAjaxCall("driveStop")'
             ontouchstart='makeAjaxCall("back")'
             ontouchend='makeAjaxCall("driveStop")'
           >
@@ -93,8 +89,6 @@ const char *webpage = R"html(
           type="button"
           class="btn btn-info btn-lg btn-animate"
           style="border-radius: 45px; font-size: 1.5rem; padding: 20px 30px"
-          onmousedown='makeAjaxCall("left")'
-          onmouseup='makeAjaxCall("steerStop")'
           ontouchstart='makeAjaxCall("left")'
           ontouchend='makeAjaxCall("steerStop")'
         >
@@ -109,8 +103,6 @@ const char *webpage = R"html(
           type="button"
           class="btn btn-info btn-lg btn-animate"
           style="border-radius: 45px; font-size: 1.5rem; padding: 20px 30px"
-          onmousedown='makeAjaxCall("right")'
-          onmouseup='makeAjaxCall("steerStop")'
           ontouchstart='makeAjaxCall("right")'
           ontouchend='makeAjaxCall("steerStop")'
         >
@@ -131,7 +123,6 @@ const char *webpage = R"html(
         <button
           class="btn btn-warning btn-lg btn-animate"
           style="border-radius: 30px; font-size: 1.5rem; padding: 20px 30px"
-          onmousedown='makeAjaxCall("LightsOff")'
           ontouchstart='makeAjaxCall("LightsOff")'
         >
           <svg
@@ -154,7 +145,6 @@ const char *webpage = R"html(
         <button
           class="btn btn-warning btn-lg btn-animate"
           style="border-radius: 30px; font-size: 1.5rem; padding: 20px 30px"
-          onmousedown='makeAjaxCall("LightsOn")'
           ontouchstart='makeAjaxCall("LightsOn")'
         >
           <svg
@@ -177,7 +167,6 @@ const char *webpage = R"html(
         <button
           class="btn btn-warning btn-lg btn-animate"
           style="border-radius: 30px; font-size: 1.5rem; padding: 20px 30px"
-          onmousedown='makeAjaxCall("LightsAuto")'
           ontouchstart='makeAjaxCall("LightsAuto")'
         >
           Auto
