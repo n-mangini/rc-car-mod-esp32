@@ -6,12 +6,19 @@
 #include <wifi_data.h>
 #include <webpage.html>
 
-const int A1A = 26;
-const int A1B = 25;
-const int B1A = 14;
-const int B1B = 27;
-const int REVERSE_LED = 12;
-const int LUCES_BAJAS = 13;
+const int ENA = 13;
+const int IN1 = 12;
+const int IN2 = 14;
+
+const int IN3 = 27;
+const int IN4 = 26;
+const int ENB = 25;
+
+int SPEED = 255;
+const int SPEED_MAX = 255;
+
+const int REVERSE_LED = 33;
+const int LUCES_BAJAS = 32;
 
 WebServer server(80);
 
@@ -66,10 +73,12 @@ void handleWifi()
 void setup(void)
 {
   Serial.begin(SERIAL_BAUD);
-  pinMode(A1A, OUTPUT);
-  pinMode(A1B, OUTPUT);
-    pinMode(B1A, OUTPUT);
-    pinMode(B1B, OUTPUT); 
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(ENA, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(ENB, OUTPUT);
   pinMode(REVERSE_LED, OUTPUT);
   pinMode(LUCES_BAJAS, OUTPUT);
   handleWifi();
@@ -78,45 +87,51 @@ void setup(void)
   server.on("/forward", []()
             {
     Serial.println("forward");
-    digitalWrite(A1A, HIGH);
-    digitalWrite(A1B, LOW);
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
+    analogWrite(ENA, SPEED);
     server.send(200, "text/plain", "forward"); });
 
   server.on("/driveStop", []()
             {
     Serial.println("driveStop");
-    digitalWrite(A1A, LOW);
-    digitalWrite(A1B, LOW);
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
+    analogWrite(ENA, 0);
     digitalWrite(REVERSE_LED, LOW);
     server.send(200, "text/plain", "driveStop"); });
 
   server.on("/back", []()
             {
     Serial.println("back");
-    digitalWrite(A1A, LOW);
-    digitalWrite(A1B, HIGH);
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH);
+    analogWrite(ENA, SPEED);
     digitalWrite(REVERSE_LED, HIGH);
     server.send(200, "text/plain", "back"); });
 
   server.on("/right", []()
             {
     Serial.println("right");
-    digitalWrite(B1A, HIGH);
-    digitalWrite(B1B, LOW); 
+    digitalWrite(IN3, HIGH);
+    digitalWrite(IN4, LOW);
+    analogWrite(ENB, SPEED_MAX);
     server.send(200, "text/plain", "right"); });
 
   server.on("/left", []()
             {
     Serial.println("left");
-    digitalWrite(B1A, LOW);
-    digitalWrite(B1B, HIGH); 
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, HIGH); 
+    analogWrite(ENB, SPEED_MAX);
     server.send(200, "text/plain", "left"); });
 
   server.on("/steerStop", []()
             {
     Serial.println("steerStop");
-    digitalWrite(B1A, LOW);
-    digitalWrite(B1B, LOW); 
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW); 
+    analogWrite(ENB, 0);
     server.send(200, "text/plain", "steerStop"); });
 
   server.on("/LightsOn", []()
@@ -125,11 +140,18 @@ void setup(void)
     digitalWrite(LUCES_BAJAS, HIGH);
     server.send(200, "text/plain", "Luces encendidas"); });
 
-      server.on("/LightsOff", []()
+  server.on("/LightsOff", []()
             {
     Serial.println("LIGHTS MANUAL OFF");
     digitalWrite(LUCES_BAJAS, LOW);
     server.send(200, "text/plain", "Luces apagadas"); });
+
+  server.on("/changeSpeed", []()
+            {
+  String speedValue = server.arg("speed");
+  Serial.println("Speed changed to " + speedValue);
+  SPEED = speedValue.toInt();
+  server.send(200, "text/plain", "Speed Changed"); });
 
   server.onNotFound(handleNotFound);
   server.begin();
