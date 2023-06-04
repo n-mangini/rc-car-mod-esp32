@@ -24,8 +24,8 @@ const int SPEED_MAX = 255;
 Ticker autoLightsTicker;
 const int LDR = 35;
 int LDR_STATUS = 0;
-const int REVERSE_LED = 33;
-const int LUCES_BAJAS = 32;
+const int HEADLIGHTS = 32;
+const int REVERSE_LIGHTS = 33;
 
 WebServer server(80);
 
@@ -84,13 +84,13 @@ void checkAutomaticLights()
   {
     Serial.println(" HIGH intensity: ");
     Serial.println(LDR_STATUS);
-    digitalWrite(LUCES_BAJAS, LOW);
+    digitalWrite(HEADLIGHTS, LOW);
   }
   else
   {
     Serial.println("LOW Intensity ");
     Serial.println(LDR_STATUS);
-    digitalWrite(LUCES_BAJAS, HIGH);
+    digitalWrite(HEADLIGHTS, HIGH);
   }
 }
 
@@ -103,8 +103,8 @@ void setup(void)
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
   pinMode(ENB, OUTPUT);
-  pinMode(REVERSE_LED, OUTPUT);
-  pinMode(LUCES_BAJAS, OUTPUT);
+  pinMode(REVERSE_LIGHTS, OUTPUT);
+  pinMode(HEADLIGHTS, OUTPUT);
   handleWifi();
 
   server.on("/", handleRoot);
@@ -122,7 +122,7 @@ void setup(void)
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, LOW);
     analogWrite(ENA, 0);
-    digitalWrite(REVERSE_LED, LOW);
+    digitalWrite(REVERSE_LIGHTS, LOW);
     server.send(200, "text/plain", "driveStop"); });
 
   server.on("/back", []()
@@ -131,7 +131,7 @@ void setup(void)
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, HIGH);
     analogWrite(ENA, SPEED);
-    digitalWrite(REVERSE_LED, HIGH);
+    digitalWrite(REVERSE_LIGHTS, HIGH);
     server.send(200, "text/plain", "back"); });
 
   server.on("/right", []()
@@ -160,30 +160,30 @@ void setup(void)
 
   server.on("/LightsOn", []()
             {
-    Serial.println("LIGHTS MANUAL ON");
+    Serial.println("headlights On");
     autoLightsTicker.detach();
-    digitalWrite(LUCES_BAJAS, HIGH);
-    server.send(200, "text/plain", "Luces encendidas"); });
+    digitalWrite(HEADLIGHTS, HIGH);
+    server.send(200, "text/plain", "Luces bajas encendidas"); });
 
   server.on("/LightsOff", []()
             {
-    Serial.println("LIGHTS MANUAL OFF");
+    Serial.println("headlights Off");
     autoLightsTicker.detach();
-    digitalWrite(LUCES_BAJAS, LOW);
-    server.send(200, "text/plain", "Luces apagadas"); });
+    digitalWrite(HEADLIGHTS, LOW);
+    server.send(200, "text/plain", "Luces bajas apagadas"); });
 
   server.on("/LightsAuto", []()
             {
-    Serial.println("Lights automatic");
+    Serial.println("headlights automatic");
     autoLightsTicker.attach(1, checkAutomaticLights);
-    server.send(200, "text/plain", "Luces automaticas"); });
+    server.send(200, "text/plain", "Luces bajas automaticas"); });
 
   server.on("/changeSpeed", []()
             {
     String speedValue = server.arg("speed");
     Serial.println("Speed changed to " + speedValue);
     SPEED = speedValue.toInt();
-    server.send(200, "text/plain", "Speed Changed"); });
+    server.send(200, "text/plain", "Velocidad limitada a " + speedValue); });
 
   server.onNotFound(handleNotFound);
   server.begin();
