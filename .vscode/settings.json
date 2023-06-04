@@ -1,5 +1,5 @@
 {
-    "workbench.colorTheme": "Default Dark+",
+    "workbench.colorTheme": "Dracula",
     "files.associations": {
         "array": "cpp",
         "deque": "cpp",

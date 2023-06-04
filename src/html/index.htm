@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
   <head>
+    <title>Control Remoto RC-CAR</title>
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
@@ -18,10 +18,12 @@
       .btn-animate {
         transition: transform 0.2s ease;
       }
-
       .btn-animate:active {
         transform: scale(0.9);
       }
+      * {
+      touch-action: manipulation;
+  }
     </style>
   </head>
 
@@ -33,14 +35,13 @@
       align-items: center;
       justify-content: center;
     "
-    ;=""
   >
     <div
       class="cont"
       style="
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(5, 1fr);
+        grid-template-columns: repeat(3);
+        grid-template-rows: repeat(5);
       "
     >
       <!--LightsOff-->
@@ -54,31 +55,10 @@
         "
       >
         <button
+          title="lightOff"
           class="btn btn-warning btn-lg btn-animate"
-          style="border-radius: 30px; font-size: 1.5rem; padding: 20px 30px"
+          style="font-size: 1.5rem; padding: 20px 25px"
           ontouchstart='makeAjaxCall("LightsOff")'
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="32"
-            height="32"
-            fill="currentColor"
-            class="bi bi-lightbulb"
-            viewBox="0 0 16 16"
-          >
-            <path
-              d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1z"
-            />
-          </svg>
-        </button>
-      </div>
-
-      <!--LightsOn-->
-      <div class="" style="grid-row: 1; grid-column: 2; text-align: center">
-        <button
-          class="btn btn-warning btn-lg btn-animate"
-          style="border-radius: 30px; font-size: 1.5rem; padding: 20px 30px"
-          ontouchstart='makeAjaxCall("LightsOn")'
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -95,28 +75,51 @@
         </button>
       </div>
 
+      <!--LightsOn-->
+      <div class="" style="grid-row: 1; grid-column: 2; text-align: center">
+        <button
+          title="lightOn"
+          class="btn btn-warning btn-lg btn-animate"
+          style="font-size: 1.5rem; padding: 20px 25px"
+          ontouchstart='makeAjaxCall("LightsOn")'
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            fill="currentColor"
+            class="bi bi-lightbulb"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1z"
+            />
+          </svg>
+        </button>
+      </div>
+
       <!--LightsAuto-->
-      <div class="" style="grid-row: 1; grid-column: 3; text-align: center">
+      <div style="grid-row: 1; grid-column: 3; text-align: center">
         <button
           class="btn btn-warning btn-lg btn-animate"
-          style="border-radius: 30px; font-size: 1.5rem; padding: 20px 30px"
+          style="font-size: 1.0rem; padding: 26px 20px"
           ontouchstart='makeAjaxCall("LightsAuto")'
         >
-          Auto
+          <label class="fw-bold">AUTO</label>
         </button>
       </div>
 
       <!--Slider-->
-      <div class="" style="grid-row: 2; grid-column: 2; text-align: center">
-            <h2>Velocidad</h2>
-            <input
-              type="range"
-              min="60"
-              max="255"
-              value="255"
-              id="range-slider"
-              onchange='makeAjaxCall("changeSpeed?speed=" + this.value)'
-            />
+      <div style="grid-row: 2; grid-column: 2; text-align: center">
+        <h2>Velocidad</h2>
+        <input
+          type="range"
+          min="60"
+          max="255"
+          value="255"
+          id="range-slider"
+          onchange='makeAjaxCall("changeSpeed?speed=" + this.value)'
+        />
       </div>
 
       <!--Forward-->
@@ -128,12 +131,23 @@
           <button
             id="drive"
             type="button"
-            class="btn btn-info btn-lg btn-animate"
-            style="border-radius: 45px; font-size: 1.5rem; padding: 20px 30px"
+            class="btn btn-dark btn-lg btn-animate"
+            style="border-radius: 80px; font-size: 1.5rem; padding: 30px 30px"
             ontouchstart='makeAjaxCall("forward")'
             ontouchend='makeAjaxCall("driveStop")'
           >
-            Drive
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="50"
+              height="50"
+              fill="currentColor"
+              class="bi bi-caret-up-fill"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"
+              />
+            </svg>
           </button>
         </div>
       </div>
@@ -147,12 +161,23 @@
           <button
             id="back"
             type="button"
-            class="btn btn-info btn-lg btn-animate"
-            style="border-radius: 45px; font-size: 1.5rem; padding: 20px 30px"
+            class="btn btn-dark btn-lg btn-animate"
+            style="border-radius: 80px; font-size: 1.5rem; padding: 30px 30px"
             ontouchstart='makeAjaxCall("back")'
             ontouchend='makeAjaxCall("driveStop")'
           >
-            Back
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="50"
+              height="50"
+              fill="currentColor"
+              class="bi bi-caret-down-fill"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"
+              />
+            </svg>
           </button>
         </div>
       </div>
@@ -162,12 +187,23 @@
         <button
           id="left"
           type="button"
-          class="btn btn-info btn-lg btn-animate"
-          style="border-radius: 45px; font-size: 1.5rem; padding: 20px 30px"
+          class="btn btn-dark btn-lg btn-animate"
+          style="border-radius: 80px; font-size: 1.5rem; padding: 30px 30px"
           ontouchstart='makeAjaxCall("left")'
           ontouchend='makeAjaxCall("steerStop")'
         >
-          Left
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="50"
+            height="50"
+            fill="currentColor"
+            class="bi bi-caret-left-fill"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"
+            />
+          </svg>
         </button>
       </div>
 
@@ -176,12 +212,23 @@
         <button
           id="right"
           type="button"
-          class="btn btn-info btn-lg btn-animate"
-          style="border-radius: 45px; font-size: 1.5rem; padding: 20px 30px"
+          class="btn btn-dark btn-lg btn-animate"
+          style="border-radius: 80px; font-size: 1.5rem; padding: 30px 30px"
           ontouchstart='makeAjaxCall("right")'
           ontouchend='makeAjaxCall("steerStop")'
         >
-          Right
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="50"
+            height="50"
+            fill="currentColor"
+            class="bi bi-caret-right-fill"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"
+            />
+          </svg>
         </button>
       </div>
     </div>

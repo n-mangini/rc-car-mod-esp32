@@ -161,20 +161,21 @@ void setup(void)
   server.on("/LightsOn", []()
             {
     Serial.println("LIGHTS MANUAL ON");
+    autoLightsTicker.detach();
     digitalWrite(LUCES_BAJAS, HIGH);
-    autoLightsTicker.attach(1, checkAutomaticLights);
     server.send(200, "text/plain", "Luces encendidas"); });
 
   server.on("/LightsOff", []()
             {
     Serial.println("LIGHTS MANUAL OFF");
+    autoLightsTicker.detach();
     digitalWrite(LUCES_BAJAS, LOW);
     server.send(200, "text/plain", "Luces apagadas"); });
 
   server.on("/LightsAuto", []()
             {
     Serial.println("Lights automatic");
-    checkAutomaticLights();
+    autoLightsTicker.attach(1, checkAutomaticLights);
     server.send(200, "text/plain", "Luces automaticas"); });
 
   server.on("/changeSpeed", []()
