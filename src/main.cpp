@@ -5,11 +5,14 @@
 #include <ESPmDNS.h>
 #include <wifi_data.h>
 #include <webpage.html>
+#include <Ticker.h>
 
+// Motor drive
 const int ENA = 13;
 const int IN1 = 12;
 const int IN2 = 14;
 
+// Motor steer
 const int IN3 = 27;
 const int IN4 = 26;
 const int ENB = 25;
@@ -17,6 +20,10 @@ const int ENB = 25;
 int SPEED = 255;
 const int SPEED_MAX = 255;
 
+// Lights
+Ticker autoLightsTicker;
+const int LDR = 35;
+int LDR_STATUS = 0;
 const int REVERSE_LED = 33;
 const int LUCES_BAJAS = 32;
 
@@ -67,6 +74,23 @@ void handleWifi()
   if (MDNS.begin("WifiCar"))
   {
     Serial.println("MDNS Responder Started");
+  }
+}
+
+void checkAutomaticLights()
+{
+  LDR_STATUS = analogRead(LDR);
+  if (LDR_STATUS > 200)
+  {
+    Serial.println(" HIGH intensity: ");
+    Serial.println(LDR_STATUS);
+    digitalWrite(LUCES_BAJAS, LOW);
+  }
+  else
+  {
+    Serial.println("LOW Intensity ");
+    Serial.println(LDR_STATUS);
+    digitalWrite(LUCES_BAJAS, HIGH);
   }
 }
 
@@ -138,6 +162,7 @@ void setup(void)
             {
     Serial.println("LIGHTS MANUAL ON");
     digitalWrite(LUCES_BAJAS, HIGH);
+    autoLightsTicker.attach(1, checkAutomaticLights);
     server.send(200, "text/plain", "Luces encendidas"); });
 
   server.on("/LightsOff", []()
@@ -146,12 +171,18 @@ void setup(void)
     digitalWrite(LUCES_BAJAS, LOW);
     server.send(200, "text/plain", "Luces apagadas"); });
 
+  server.on("/LightsAuto", []()
+            {
+    Serial.println("Lights automatic");
+    checkAutomaticLights();
+    server.send(200, "text/plain", "Luces automaticas"); });
+
   server.on("/changeSpeed", []()
             {
-  String speedValue = server.arg("speed");
-  Serial.println("Speed changed to " + speedValue);
-  SPEED = speedValue.toInt();
-  server.send(200, "text/plain", "Speed Changed"); });
+    String speedValue = server.arg("speed");
+    Serial.println("Speed changed to " + speedValue);
+    SPEED = speedValue.toInt();
+    server.send(200, "text/plain", "Speed Changed"); });
 
   server.onNotFound(handleNotFound);
   server.begin();
