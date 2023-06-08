@@ -7,15 +7,15 @@
 #include <webpage.html>
 #include <Ticker.h>
 
-// Motor drive
-const int ENA = 13;
-const int IN1 = 12;
-const int IN2 = 14;
-
 // Motor steer
-const int IN3 = 27;
-const int IN4 = 26;
-const int ENB = 25;
+const int ENA = 25;
+const int IN1 = 26;
+const int IN2 = 27;
+
+// Motor drive
+const int IN3 = 14;
+const int IN4 = 12;
+const int ENB = 13;
 
 int SPEED = 255;
 const int SPEED_MAX = 255;
@@ -96,7 +96,7 @@ void checkAutomaticLights()
 
 void setup(void)
 {
-  Serial.begin(SERIAL_BAUD);
+  //Serial.begin(SERIAL_BAUD);
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
   pinMode(ENA, OUTPUT);
@@ -111,51 +111,51 @@ void setup(void)
   server.on("/forward", []()
             {
     Serial.println("forward");
-    digitalWrite(IN1, HIGH);
-    digitalWrite(IN2, LOW);
-    analogWrite(ENA, SPEED);
+    digitalWrite(IN3, HIGH);
+    digitalWrite(IN4, LOW);
+    analogWrite(ENB, SPEED);
     server.send(200, "text/plain", "forward"); });
 
   server.on("/driveStop", []()
             {
     Serial.println("driveStop");
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, LOW);
-    analogWrite(ENA, 0);
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW);
+    analogWrite(ENB, 0);
     digitalWrite(REVERSE_LIGHTS, LOW);
     server.send(200, "text/plain", "driveStop"); });
 
   server.on("/back", []()
             {
     Serial.println("back");
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, HIGH);
-    analogWrite(ENA, SPEED);
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, HIGH);
+    analogWrite(ENB, SPEED);
     digitalWrite(REVERSE_LIGHTS, HIGH);
     server.send(200, "text/plain", "back"); });
 
   server.on("/right", []()
             {
     Serial.println("right");
-    digitalWrite(IN3, HIGH);
-    digitalWrite(IN4, LOW);
-    analogWrite(ENB, SPEED_MAX);
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
+    analogWrite(ENA, SPEED_MAX);
     server.send(200, "text/plain", "right"); });
 
   server.on("/left", []()
             {
     Serial.println("left");
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, HIGH); 
-    analogWrite(ENB, SPEED_MAX);
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH); 
+    analogWrite(ENA, SPEED_MAX);
     server.send(200, "text/plain", "left"); });
 
   server.on("/steerStop", []()
             {
     Serial.println("steerStop");
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, LOW); 
-    analogWrite(ENB, 0);
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW); 
+    analogWrite(ENA, 0);
     server.send(200, "text/plain", "steerStop"); });
 
   server.on("/LightsOn", []()
