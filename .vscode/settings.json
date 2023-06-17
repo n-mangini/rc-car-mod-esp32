@@ -8,7 +8,6 @@
         "unordered_set": "cpp",
         "vector": "cpp",
         "string_view": "cpp",
-        "initializer_list": "cpp",
-        "*.html": "cpp"
+        "initializer_list": "cpp"
     }
 }

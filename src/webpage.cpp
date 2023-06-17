@@ -22,7 +22,6 @@ const char *webpage = R"html(
         height: 20px; /* Increase the height to make the slider taller */
         /* Add any additional styling properties as needed */
       }
-      
       .btn-animate {
         transition: transform 0.2s ease;
       }
