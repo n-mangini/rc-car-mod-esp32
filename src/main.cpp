@@ -3,9 +3,9 @@
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <ESPmDNS.h>
-#include <wifi_data.h>
-#include <webpage.html>
 #include <Ticker.h>
+#include <wifi_data.h>
+#include <webpage.cpp>
 
 // Motor steer
 const int ENA = 25;
@@ -31,6 +31,7 @@ WebServer server(80);
 
 void handleRoot()
 {
+  //html code as char
   server.send(200, "text/html", webpage);
 }
 
