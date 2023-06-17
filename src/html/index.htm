@@ -15,6 +15,11 @@
     />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <style>
+      #range-slider {
+        width: 90%; /* Set the width to occupy the entire available space */
+        height: 20px; /* Increase the height to make the slider taller */
+        /* Add any additional styling properties as needed */
+      }
       .btn-animate {
         transition: transform 0.2s ease;
       }
@@ -22,8 +27,8 @@
         transform: scale(0.9);
       }
       * {
-      touch-action: manipulation;
-  }
+        touch-action: manipulation;
+      }
     </style>
   </head>
 
@@ -102,7 +107,7 @@
       <div style="grid-row: 1; grid-column: 3; text-align: center">
         <button
           class="btn btn-warning btn-lg btn-animate"
-          style="font-size: 1.0rem; padding: 26px 20px"
+          style="font-size: 1rem; padding: 26px 20px"
           ontouchstart='makeAjaxCall("LightsAuto")'
         >
           <label class="fw-bold">AUTO</label>
@@ -110,7 +115,7 @@
       </div>
 
       <!--Slider-->
-      <div style="grid-row: 2; grid-column: 2; text-align: center">
+      <div style="grid-row: 2; grid-column: 1 / span 3; text-align: center">
         <h2>Velocidad</h2>
         <input
           type="range"

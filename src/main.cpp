@@ -62,9 +62,10 @@ void handleWifi()
 
   while (WiFi.status() != WL_CONNECTED)
   {
-    delay(500);
+    delay(400);
     Serial.print(".");
   }
+  digitalWrite(LED_BUILTIN, HIGH);
   Serial.println("");
   Serial.print("Connected to ");
   Serial.println(SSID);
@@ -80,9 +81,9 @@ void handleWifi()
 void checkAutomaticLights()
 {
   LDR_STATUS = analogRead(LDR);
-  if (LDR_STATUS > 200)
+  if (LDR_STATUS < 3500)
   {
-    Serial.println(" HIGH intensity: ");
+    Serial.println("HIGH intensity: ");
     Serial.println(LDR_STATUS);
     digitalWrite(HEADLIGHTS, LOW);
   }
@@ -96,7 +97,8 @@ void checkAutomaticLights()
 
 void setup(void)
 {
-  //Serial.begin(SERIAL_BAUD);
+  Serial.begin(SERIAL_BAUD);
+  pinMode(LED_BUILTIN, OUTPUT);
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
   pinMode(ENA, OUTPUT);
@@ -105,6 +107,9 @@ void setup(void)
   pinMode(ENB, OUTPUT);
   pinMode(REVERSE_LIGHTS, OUTPUT);
   pinMode(HEADLIGHTS, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
+  digitalWrite(HEADLIGHTS, LOW);
+  digitalWrite(REVERSE_LIGHTS, LOW);
   handleWifi();
 
   server.on("/", handleRoot);
