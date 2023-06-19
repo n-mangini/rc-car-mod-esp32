@@ -49,3 +49,4 @@ https://github.com/nicolas-mangini/esp32-rc-car-mod/assets/72108522/c88e2a87-3ad
 Mediante la combinación de componentes electrónicos y el desarrollo de software, se logró crear un sistema que permite controlar el auto a través de una interfaz web. El uso de un puente H L298N para el manejo de los motores, una fuente DC-DC Step Down para la alimentación, y un LDR para el control automático de las luces, son aspectos destacados del proyecto.
 
 El resultado final es un auto a control remoto funcional y versátil, que puede ser controlado de manera intuitiva desde cualquier dispositivo con conexión a la interfaz web. Este proyecto demuestra la integración exitosa de hardware y software en la construcción de un sistema de control remoto utilizando el ESP32 como plataforma principal.
+![AUTO](https://github.com/nicolas-mangini/esp32-rc-car-mod/assets/72108522/e764bb63-d8ab-4a1d-9f82-f43eed08af62)
