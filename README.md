@@ -1,5 +1,3 @@
-![image](https://github.com/nicolas-mangini/esp32-rc-car-mod/assets/72108522/4942dd6e-c4bd-4b3a-9429-ea97b9b5dfc7)
-
 # Auto a control remoto con ESP32
 ## Elementos básicos
 - Motor: Dos motores conectados mediante un puente H para tracción y dirección
